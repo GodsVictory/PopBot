@@ -9,6 +9,9 @@ A simple Electron app that shows a popup chat window triggered by a keyboard sho
 - Always-on-top window
 - Draggable titlebar
 - Basic chat functionality
+- Works with Anthropic, OpenAI, and Ollama
+
+![image](https://github.com/user-attachments/assets/ddabe87c-39af-4c03-b5f4-9b2469979e77)
 
 ## Installation
 
