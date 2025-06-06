@@ -98,9 +98,7 @@ function createTray() {
         {
             label: 'Show Chat',
             click: () => {
-                positionWindowNearCursor(chatWindow);
-                chatWindow.show();
-                chatWindow.focus();
+                showChatWindow()
             }
         },
         {
@@ -127,9 +125,7 @@ function createTray() {
         if (chatWindow.isVisible()) {
             clearChat();
         } else {
-            positionWindowNearCursor(chatWindow);
-            chatWindow.show();
-            chatWindow.focus();
+            showChatWindow()
         }
     });
 
@@ -286,6 +282,15 @@ function clearChat() {
     }
 }
 
+function showChatWindow() {
+    if (chatWindow) {
+        positionWindowNearCursor(chatWindow);
+        chatWindow.show();
+        chatWindow.focus();
+        chatWindow.webContents.send('window-shown');
+    }
+}
+
 // App initialization
 async function initializeApp() {
     try {
@@ -303,9 +308,7 @@ async function initializeApp() {
             if (chatWindow.isVisible()) {
                 clearChat();
             } else {
-                positionWindowNearCursor(chatWindow);
-                chatWindow.show();
-                chatWindow.focus();
+                showChatWindow()
             }
         });
 
