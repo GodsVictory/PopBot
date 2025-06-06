@@ -1,4 +1,4 @@
-const { app, BrowserWindow, globalShortcut, ipcMain, screen } = require('electron');
+const { app, BrowserWindow, globalShortcut, ipcMain, screen, Tray, Menu } = require('electron');
 const path = require('path');
 const configManager = require('./config');
 const aiService = require('./ai-service');
@@ -31,6 +31,7 @@ let chatWindow = null;
 let settingsWindow = null;
 let isConfigReady = false;
 let configReadyPromise = null;
+let tray = null;
 
 async function ensureConfigReady() {
     if (!isConfigReady) {
@@ -81,6 +82,58 @@ async function createSettingsWindow() {
 
     settingsWindow.on('closed', () => {
         settingsWindow = null;
+    });
+}
+
+function createTray() {
+    // Create tray icon
+    tray = new Tray(path.join(__dirname, 'assets', 'icon.png'));
+    
+    // Create context menu
+    const contextMenu = Menu.buildFromTemplate([
+        {
+            label: 'Show Chat',
+            click: () => {
+                positionWindowNearCursor(chatWindow);
+                chatWindow.show();
+                chatWindow.focus();
+            }
+        },
+        {
+            label: 'Settings',
+            click: () => createSettingsWindow()
+        },
+        { type: 'separator' },
+        {
+            label: 'Quit',
+            accelerator: 'CmdOrCtrl+Q',
+            click: () => {
+                app.isQuitting = true;
+                app.quit();
+            }
+        }
+    ]);
+
+    // Set tooltip and context menu
+    tray.setToolTip('PopBot');
+    tray.setContextMenu(contextMenu);
+
+    // Handle tray icon click
+    tray.on('click', () => {
+        if (chatWindow.isVisible()) {
+            clearChat();
+        } else {
+            positionWindowNearCursor(chatWindow);
+            chatWindow.show();
+            chatWindow.focus();
+        }
+    });
+
+    // Clean up tray on app quit
+    app.on('before-quit', () => {
+        if (tray) {
+            tray.destroy();
+        }
     });
 }
 
@@ -239,6 +292,7 @@ async function initializeApp() {
         await createChatWindow();
         await ensureConfigReady();
         setupIpcHandlers();
+        createTray();
 
         // Register global shortcut
         globalShortcut.register(SHORTCUT_KEY, () => {
@@ -248,8 +302,19 @@ async function initializeApp() {
                 positionWindowNearCursor(chatWindow);
                 chatWindow.show();
                 chatWindow.focus();
-                chatWindow.webContents.send('window-shown');
             }
+        });
+
+        // Handle window close
+        chatWindow.on('close', (event) => {
+            if (!app.isQuitting) {
+                event.preventDefault();
+                clearChat();
+            }
+        });
+
+        app.on('before-quit', () => {
+            app.isQuitting = true;
         });
 
         // Handle streaming responses

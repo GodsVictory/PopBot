@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="256"
+   height="256"
+   viewBox="0 0 256 256"
+   version="1.1"
+   id="svg14"
+   sodipodi:docname="icon.svg"
+   inkscape:version="1.4 (86a8ad7, 2024-10-11)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs14" />
+  <sodipodi:namedview
+     id="namedview14"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="0.13623048"
+     inkscape:cx="-3046.3081"
+     inkscape:cy="-1233.2042"
+     inkscape:window-width="2560"
+     inkscape:window-height="1369"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg14" />
+  <!-- Main chat bubble -->
+  <path
+     d="M 0.49613368,57.346655 C 0.49613368,28.933667 32.446062,0.52067683 75.045966,0.52067683 H 181.54573 c 42.59991,0 74.54983,28.41299017 74.54983,56.82597817 V 161.52762 c 0,28.41298 -31.94992,56.82599 -74.54983,56.82599 H 64.395991 L 0.49613368,256.23758 Z"
+     fill="#4338ca"
+     opacity="0.3"
+     id="path2"
+     style="display:none;opacity:1;fill:#ff0170;fill-opacity:1;stroke-width:5.0216" />
+  <path
+     d="m 37.450857,76.749857 c 0,-20.327089 22.422498,-40.654179 52.319162,-40.654179 h 74.741661 c 29.89667,0 52.31916,20.32709 52.31916,40.654179 v 74.532663 c 0,20.32709 -22.42249,40.65418 -52.31916,40.65418 H 82.295852 l -44.844995,27.10278 z"
+     fill="#6366f1"
+     stroke="#4f46e5"
+     stroke-width="3.55818"
+     id="path1"
+     style="display:none;fill:#0f0f0f;fill-opacity:1;stroke:#217c90;stroke-opacity:1" />
+  <!-- Bubble shadow (simple offset) -->
+  <!-- Robot head -->
+  <!-- Robot antenna -->
+  <!-- Robot eyes -->
+  <!-- Robot mouth/speaker grille -->
+  <!-- Robot body -->
+  <!-- Robot chest panel -->
+  <!-- Robot buttons/controls -->
+  <!-- Robot arms -->
+  <!-- Robot hands -->
+  <g
+     id="g1"
+     transform="matrix(1.1742684,0,0,1.1742684,-21.691021,-15.014169)">
+    <rect
+       x="42.444401"
+       y="76.96608"
+       width="169.96448"
+       height="148.7189"
+       rx="31.868338"
+       ry="31.868338"
+       fill="#e5e7eb"
+       stroke="#6b7280"
+       stroke-width="10.6228"
+       id="rect2" />
+    <line
+       x1="127.42664"
+       y1="71.440811"
+       x2="127.42664"
+       y2="33.369904"
+       stroke="#6b7280"
+       stroke-width="20.1102"
+       stroke-linecap="round"
+       id="line2" />
+    <circle
+       cx="127.42664"
+       cy="34.47496"
+       fill="#06b6d4"
+       id="circle2"
+       style="stroke-width:10.6228"
+       r="21.24556" />
+    <circle
+       cx="84.935509"
+       cy="130.07997"
+       fill="#06b6d4"
+       id="circle3"
+       style="stroke-width:10.6228"
+       r="26.556946" />
+    <circle
+       cx="169.91776"
+       cy="130.07997"
+       fill="#06b6d4"
+       id="circle4"
+       style="stroke-width:10.6228"
+       r="26.556946" />
+    <circle
+       cx="84.935509"
+       cy="130.07997"
+       fill="#ffffff"
+       id="circle5"
+       style="stroke-width:10.6228"
+       r="12.747335" />
+    <circle
+       cx="169.91776"
+       cy="130.07997"
+       fill="#ffffff"
+       id="circle6"
+       style="stroke-width:10.6228"
+       r="12.747335" />
+    <rect
+       x="95.558304"
+       y="178.92514"
+       width="63.736671"
+       height="19.160221"
+       rx="10.622779"
+       ry="6.3867402"
+       fill="#6b7280"
+       id="rect6"
+       style="stroke-width:8.23682" />
+  </g>
+</svg>
