@@ -307,6 +307,10 @@
 
     <script>
         const { ipcRenderer } = require('electron');
+        let pendingChanges = {
+            services: {},
+            defaults: {}
+        };
 
         // Load settings when the window opens
         window.addEventListener('DOMContentLoaded', () => {
@@ -338,6 +342,83 @@
             }
         }
 
+        function trackServiceChange(serviceName, setting, value) {
+            if (!pendingChanges.services[serviceName]) {
+                pendingChanges.services[serviceName] = {};
+            }
+            pendingChanges.services[serviceName][setting] = value;
+        }
+
+        function trackDefaultChange(setting, value) {
+            pendingChanges.defaults[setting] = value;
+        }
+
+        async function updateServiceSetting(serviceName, setting, value) {
+            trackServiceChange(serviceName, setting, value);
+        }
+
+        async function updateDefaultService(serviceName) {
+            trackDefaultChange('service', serviceName);
+        }
+
+        async function updateDefaultSetting(setting, value) {
+            trackDefaultChange(setting, value);
+        }
+
+        async function addNewService() {
+            try {
+                const serviceName = prompt('Enter a name for the new service:');
+                if (serviceName) {
+                    await ipcRenderer.invoke('add-service', serviceName);
+                    loadConfig();
+                }
+            } catch (error) {
+                console.error('Error adding service:', error);
+            }
+        }
+
+        async function deleteService(serviceName) {
+            try {
+                if (confirm(`Are you sure you want to delete the service "${serviceName}"?`)) {
+                    await ipcRenderer.invoke('delete-service', serviceName);
+                    loadConfig();
+                }
+            } catch (error) {
+                console.error('Error deleting service:', error);
+            }
+        }
+
+        async function closeWindow() {
+            console.log('Saving pending changes:', pendingChanges);
+            try {
+                // Save all pending changes
+                for (const [serviceName, changes] of Object.entries(pendingChanges.services)) {
+                    for (const [setting, value] of Object.entries(changes)) {
+                        await ipcRenderer.invoke('update-service-setting', serviceName, setting, value);
+                    }
+                }
+                
+                for (const [setting, value] of Object.entries(pendingChanges.defaults)) {
+                    await ipcRenderer.invoke('update-default-setting', setting, value);
+                }
+                
+                console.log('All changes saved successfully');
+            } catch (error) {
+                console.error('Error saving changes:', error);
+            }
+            
+            ipcRenderer.send('settings-closed');
+            window.close();
+        }
+
+        // Handle ESC key to hide window
+        document.addEventListener('keydown', (e) => {
+            console.log('Key pressed:', e.key);
+            if (e.key === 'Escape') {
+                closeWindow();
+            }
+        });
+
         function renderSettings(config) {
             console.log('Rendering settings with config:', config);
             const settingsContent = document.querySelector('.settings-content-wrapper');
@@ -350,7 +431,7 @@
                         <h3>Default Settings</h3>
                         <div class="form-group">
                             <label>Default Service</label>
-                            <select class="default-service-select" onchange="updateDefaultService(this.value)">
+                            <select class="default-service-select" oninput="updateDefaultService(this.value)">
                                 ${config.services.map(service => `
                                     <option value="${service.name}" ${service.name === config.defaults.service ? 'selected' : ''}>
                                         ${service.name}
@@ -365,8 +446,7 @@
                                    min="0" 
                                    max="2" 
                                    step="0.1"
-                                   onchange="updateDefaultSetting('temperature', parseFloat(this.value))"
-                                   onblur="updateDefaultSetting('temperature', parseFloat(this.value))">
+                                   oninput="updateDefaultSetting('temperature', parseFloat(this.value))">
                         </div>
                         <div class="form-group">
                             <label>Max Tokens</label>
@@ -374,15 +454,13 @@
                                    value="${config.defaults.max_tokens}" 
                                    min="1" 
                                    step="1"
-                                   onchange="updateDefaultSetting('max_tokens', parseInt(this.value))"
-                                   onblur="updateDefaultSetting('max_tokens', parseInt(this.value))">
+                                   oninput="updateDefaultSetting('max_tokens', parseInt(this.value))">
                         </div>
                         <div class="form-group">
                             <label>System Prompt</label>
                             <input type="text" 
                                    value="${config.defaults.system_prompt}" 
-                                   onchange="updateDefaultSetting('system_prompt', this.value)"
-                                   onblur="updateDefaultSetting('system_prompt', this.value)"
+                                   oninput="updateDefaultSetting('system_prompt', this.value)"
                                    placeholder="Enter system prompt">
                         </div>
                     </div>
@@ -413,24 +491,21 @@
                                 <label>API Key</label>
                                 <input type="text" 
                                        value="${service.api_key || ''}" 
-                                       onchange="updateServiceSetting('${service.name}', 'api_key', this.value)"
-                                       onblur="updateServiceSetting('${service.name}', 'api_key', this.value)"
+                                       oninput="updateServiceSetting('${service.name}', 'api_key', this.value)"
                                        placeholder="Enter API key">
                             </div>
                             <div class="form-group">
                                 <label>Model</label>
                                 <input type="text" 
                                        value="${service.model || ''}" 
-                                       onchange="updateServiceSetting('${service.name}', 'model', this.value)"
-                                       onblur="updateServiceSetting('${service.name}', 'model', this.value)"
+                                       oninput="updateServiceSetting('${service.name}', 'model', this.value)"
                                        placeholder="Enter model name">
                             </div>
                             <div class="form-group">
                                 <label>Base URL</label>
                                 <input type="text" 
                                        value="${service.base_url || ''}" 
-                                       onchange="updateServiceSetting('${service.name}', 'base_url', this.value)"
-                                       onblur="updateServiceSetting('${service.name}', 'base_url', this.value)"
+                                       oninput="updateServiceSetting('${service.name}', 'base_url', this.value)"
                                        placeholder="Enter base URL">
                             </div>
                         </div>
@@ -447,69 +522,6 @@
 
             settingsContent.innerHTML = html;
         }
-
-        async function updateServiceSetting(serviceName, setting, value) {
-            try {
-                await ipcRenderer.invoke('update-service-setting', serviceName, setting, value);
-                console.log('Service setting updated:', { serviceName, setting, value });
-            } catch (error) {
-                console.error('Error updating service setting:', error);
-            }
-        }
-
-        async function updateDefaultService(serviceName) {
-            try {
-                await ipcRenderer.invoke('update-default-service', serviceName);
-                console.log('Default service updated:', serviceName);
-            } catch (error) {
-                console.error('Error updating default service:', error);
-            }
-        }
-
-        async function updateDefaultSetting(setting, value) {
-            try {
-                await ipcRenderer.invoke('update-default-setting', setting, value);
-                console.log('Default setting updated:', { setting, value });
-            } catch (error) {
-                console.error('Error updating default setting:', error);
-            }
-        }
-
-        async function addNewService() {
-            try {
-                const serviceName = prompt('Enter a name for the new service:');
-                if (serviceName) {
-                    await ipcRenderer.invoke('add-service', serviceName);
-                    loadConfig();
-                }
-            } catch (error) {
-                console.error('Error adding service:', error);
-            }
-        }
-
-        async function deleteService(serviceName) {
-            try {
-                if (confirm(`Are you sure you want to delete the service "${serviceName}"?`)) {
-                    await ipcRenderer.invoke('delete-service', serviceName);
-                    loadConfig();
-                }
-            } catch (error) {
-                console.error('Error deleting service:', error);
-            }
-        }
-
-        function closeWindow() {
-            console.log('Closing settings window');
-            ipcRenderer.send('settings-closed');
-            window.close();
-        }
-
-        // Handle ESC key to hide window
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeWindow();
-            }
-        });
     </script>
 </body>
 </html> 
