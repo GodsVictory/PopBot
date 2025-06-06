@@ -13,6 +13,9 @@ A simple Electron app that shows a popup chat window triggered by a keyboard sho
 
 ![image](https://github.com/user-attachments/assets/ddabe87c-39af-4c03-b5f4-9b2469979e77)
 
+## Download
+[GitHub Releases](https://github.com/GodsVictory/PopBot/releases/tag/1.0.0)
+
 ## Installation
 
 1. Make sure you have [Node.js](https://nodejs.org/) installed
