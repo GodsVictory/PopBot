@@ -1,0 +1,54 @@
+name: Attach Artifacts to Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  attach-artifacts:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+      actions: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update package.json version
+        run: |
+          $version = "${{ github.ref_name }}"
+          $content = Get-Content package.json -Raw | ConvertFrom-Json
+          $content.version = $version
+          $content | ConvertTo-Json -Depth 10 | Set-Content package.json
+      
+      - name: Commit package.json version
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add package.json
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build Windows executable
+        run: npm run build
+
+      - name: Attach artifacts to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.exe
+          tag_name: ${{ github.event.release.tag_name }} 

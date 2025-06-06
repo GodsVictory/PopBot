@@ -6,33 +6,12 @@ on:
   pull_request:
     branches: [ main ]
   workflow_dispatch:
-  tag:
-    types: [created]
 
 jobs:
   build:
-    permissions:
-      contents: write
-      packages: write
     runs-on: windows-latest
-
     steps:
     - uses: actions/checkout@v4
-
-    - name: Update package.json version
-      if: github.event_name == 'tag'
-      run: |
-        $version = "${{ github.ref_name }}"
-        $content = Get-Content package.json -Raw | ConvertFrom-Json
-        $content.version = $version
-        $content | ConvertTo-Json -Depth 10 | Set-Content package.json
-    
-    - name: Commit package.json version
-      if: github.event_name == 'tag'
-      run: |
-        git config --global user.name "GitHub Actions"
-        git config --global user.email "actions@github.com"
-        git add package.json
     
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -51,14 +30,6 @@ jobs:
     - name: Install dependencies
       run: npm ci
     
-    - name: Cache build output
-      uses: actions/cache@v4
-      with:
-        path: dist
-        key: ${{ runner.os }}-build-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-build-
-    
     - name: Build Windows executable
       run: npm run build
     
@@ -68,15 +39,3 @@ jobs:
         name: popbot-win64
         path: dist/*.exe
         if-no-files-found: error
-
-    - name: Generate release notes
-      if: github.event_name == 'tag'
-      id: release_notes
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: v${{ github.ref_name }}
-        name: Release v${{ github.ref_name }}
-        body: |
-          ## What's Changed
-          ${{ github.repositoryUrl }}/compare/v${{ github.ref_name }}...main
-        files: dist/*.exe
