@@ -63,6 +63,10 @@ function positionWindowNearCursor(window) {
     x = Math.max(bounds.x, Math.min(x, bounds.x + bounds.width - width));
     y = Math.max(bounds.y, Math.min(y, bounds.y + bounds.height - height));
 
+    // Ensure coordinates are integers
+    x = Math.round(x);
+    y = Math.round(y);
+
     window.setPosition(x, y);
 }
 
