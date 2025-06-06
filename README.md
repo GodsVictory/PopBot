@@ -1,4 +1,4 @@
-# PopBot Chat
+# PopBot
 
 A simple Electron app that shows a popup chat window triggered by a keyboard shortcut.
 
