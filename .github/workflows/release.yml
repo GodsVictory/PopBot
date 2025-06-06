@@ -31,6 +31,14 @@ jobs:
           name: popbot-win64
           path: artifacts
 
+      - name: Rename executable
+        run: |
+          cd artifacts
+          for file in *.exe; do
+            new_name=$(echo "$file" | sed "s/1.0.0/${{ github.event.inputs.version }}/g")
+            mv "$file" "$new_name"
+          done
+
       - name: Generate release notes
         id: release_notes
         uses: softprops/action-gh-release@v2
